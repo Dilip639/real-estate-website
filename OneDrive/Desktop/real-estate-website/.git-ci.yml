@@ -1,0 +1,35 @@
+image: hashicorp/terraform:latest
+
+stages:
+  - init
+  - validate
+  - apply
+  - upload
+
+before_script:
+  - apk add --no-cache curl unzip bash
+  - terraform --version
+  - cd terraform
+
+init:
+  stage: init
+  script:
+    - terraform init
+
+validate:
+  stage: validate
+  script:
+    - terraform validate
+
+apply:
+  stage: apply
+  script:
+    - terraform apply -auto-approve
+
+upload:
+  stage: upload
+  image: python:3.9
+  before_script:
+    - pip install awscli
+  script:
+    - aws s3 sync src/main/webapp/ s3://real-estate-website-bucket-dilip --delete --acl public-read
